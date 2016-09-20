@@ -1,0 +1,47 @@
+create table cusinfo(id int,fname String,contact String)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'
+
+
+create table cusdetails(id int,last_name String)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'
+
+truncate table cusinfo
+load data local inpath '/home/osgdev/anil/cusinfo.txt' overwrite into table cusinfo;
+
+
+truncate table cusdetails
+load data local inpath '/home/osgdev/anil/cusdetails.txt' overwrite into table cusdetails;
+
+
+select info.fname,d.last_name from cusinfo as info join cusdetails as d on info.id = d.id;
+
+
+customers = LOAD '/home/osgdev/anil/customers.txt' USING PigStorage(',')   as (id:int, name:chararray, age:int,address:chararray, salary:int);
+
+
+orders = LOAD '/home/osgdev/anil/orders.txt' USING PigStorage(',')  as (oid:int, date:chararray, customer_id:int, amount:int);
+
+
+result = JOIN orders by customer_id , customers by id; 
+
+group_by_result  = Group result by customer_id;
+
+final_result  = foreach group_by_result generate  (result.name,result.amount),SUM(result.amount);
+
+final_result  = foreach group_by_result  { 
+	customer_name1 = DISTINCT result.name;
+	generate group as customer_id,
+	BagToString(customer_name1),
+	COUNT(result.customer_id) as number_of_order,
+	SUM(result.amount) as total_sale;
+	};
+
+group_by_result  = Group final_result  by cus_name;
+final_result2 = order final_result by number_of_order DESC
+
+final_result2  = foreach final_result  generate  (result.name,result.amount),SUM(result.amount);
+
+dump final_result;
+
+store final_result into '/home/osgdev/anil/pig_result/'  USING  PigStorage(',');
+
