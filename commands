@@ -47,7 +47,7 @@ store final_result into '/home/osgdev/anil/pig_result/'  USING  PigStorage(',');
 
 hadoop com.sun.tools.javac.Main mapr.java
 
-
+hadoop fs -put /home/osgdev/anil/customers.txt /anil
 
 javac -classpath /home/osgdev/hadoop-2.5.0-cdh5.3.2/share/hadoop/common/hadoop-common-2.5.0-cdh5.3.2.jar:/home/osgdev/hadoop-2.5.0-cdh5.3.2/share/hadoop/mapreduce1/hadoop-core-2.5.0-mr1-cdh5.3.2.jar -d /home/osgdev/anil/units /home/osgdev/anil/mapr.java 
 
@@ -55,5 +55,7 @@ jar -cvf units.jar -C units/ .
 
 hadoop jar units.jar mapr /anil /anil/output
 
+
+hadoop fs -cat /anil/output/part-r-00000
 
 
